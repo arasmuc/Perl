@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w
+
+ 
+
+# Dies ist ein Performance-Collector.
+# Copyright by 
+# Date: 11.1.2012
+# Version: 1.0
+# Date: 09.03.2012
+# Version: 1.1
+
+ 
+
+use strict;
+use POSIX;
+
+my $START=`date +%d.%m.%Y\_%H:%M`;
+my $outfile="Perfsummary.$START";
+my $outfile_sar="Perfsummary_sar.$START";
+my $msgfile="Perfsummary_msg.$START";
+
+ 
+
+my @CMDARRAY=("psrinfo -v","psrinfo","uptime","who -b","uname -a", "w", "finger", "isainfo","prstat -mL 2 5",
+
+                "/usr/ucb/ps -axu", "df -h", "zpool list", "zpool status",
+
+                "zpool iostat 2 10", "vmstat 2 10", "iostat -xm 2 10", "ptree", "ipcs -a",
+
+                "ifconfig -a","netstat -r", "netstat -an", "/usr/ucb/ps -aux", "swap -l",
+
+                "swap -s", "dmesg", "nfsstat 2 5","netstat -i","last -20", "mpstat -a 2 10",
+
+                "zpool iostat 2 10","who -r");
+
+ 
+
+my @CMDARRAY_1=("sar -o '$outfile_sar' 2 20");
+
+ 
+
+for (my $i=0; $i<=$#CMDARRAY; $i++){
+
+        my $RAHMEN="################# $CMDARRAY[$i] #######################################";
+
+        system("echo '$RAHMEN' >>$outfile");
+
+        system("$CMDARRAY[$i] >>$outfile");
+
+}
+
+system("/usr/bin/dmesg >>$msgfile");
+system("sar -o Perfsummary_sar_`date +%d.%m.%Y\_%H:%M` 2 20");
+my $END=`date +%d.%m.%Y\_%H:%M`;
+
+system("echo 'END_DATE=$END' >>$outfile");
